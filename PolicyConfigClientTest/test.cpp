@@ -1,6 +1,8 @@
 #include "pch.h"
+#include "PolicyConfigClient.h"
 
-TEST(TestCaseName, TestName) {
-  EXPECT_EQ(1, 1);
-  EXPECT_TRUE(true);
+TEST(TestSetDefaultAudioEndPoint, InvalidDeviceId) {
+	ASSERT_FALSE(SetDefaultAudioEndPoint(TEXT("SomeInvalidId"), ERole::eCommunications));
+	ASSERT_FALSE(SetDefaultAudioEndPoint(TEXT("SomeInvalidId"), ERole::eMultimedia));
+	ASSERT_FALSE(SetDefaultAudioEndPoint(TEXT("SomeInvalidId"), ERole::eConsole));
 }
