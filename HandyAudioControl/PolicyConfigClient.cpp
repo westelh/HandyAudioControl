@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "PolicyConfigClient.h"
 #include "IPolicyConfig.h"
 
@@ -29,23 +28,25 @@ namespace {
 	}
 }
 
-bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role) {
-	IPolicyConfig* pPolicyConfig = nullptr;
+namespace HandyAudioControl {
+	bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role) {
+		IPolicyConfig* pPolicyConfig = nullptr;
 
-	const auto rCreation = CreateIPolicyConfig(&pPolicyConfig);
-	if (!SUCCEEDED(rCreation))
-	{
+		const auto rCreation = CreateIPolicyConfig(&pPolicyConfig);
+		if (!SUCCEEDED(rCreation))
+		{
+			SafeRelease(&pPolicyConfig);
+			return false;
+		}
+
+		const auto rQuery = QueryIPolicyConfig(pPolicyConfig);
+		if (!SUCCEEDED(rQuery))
+		{
+			SafeRelease(&pPolicyConfig);
+		}
+
+		pPolicyConfig->SetDefaultEndpoint(deviceId, role);
 		SafeRelease(&pPolicyConfig);
-		return false;
+		return true;
 	}
-
-	const auto rQuery = QueryIPolicyConfig(pPolicyConfig);
-	if (!SUCCEEDED(rQuery))
-	{
-		SafeRelease(&pPolicyConfig);
-	}
-
-	pPolicyConfig->SetDefaultEndpoint(deviceId, role);
-	SafeRelease(&pPolicyConfig);
-	return true;
 }
