@@ -8,4 +8,6 @@
 
 #include "mmdeviceapi.h"
 
-extern "C" POLICYCONFIGCLIENT_API bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role);
+namespace HandyAudioControl {
+	bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role);
+}
