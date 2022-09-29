@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <limits>
 #include <system_error>
+#include "mmdeviceapi.h"
 #include "MMDeviceClient.h"
 
 // Get std::error_code with GetLastError() Win32 API

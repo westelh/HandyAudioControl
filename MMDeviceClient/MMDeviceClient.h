@@ -8,6 +8,3 @@
 
 #include <memory>
 #include <vector>
-#include "mmdeviceapi.h"
-
-class Win32ApiException;
