@@ -2,33 +2,6 @@
 #include "IPolicyConfig.h"
 #include "Utils.h"
 
-namespace {
-	HRESULT CreateIPolicyConfig(IPolicyConfig** ppInstance) noexcept {
-		const auto hr = CoCreateInstance(__uuidof(CPolicyConfigClient), nullptr, CLSCTX_ALL, IID_PPV_ARGS(ppInstance));
-		return hr;
-	}
-
-	HRESULT QueryIPolicyConfig(IPolicyConfig* pInstance) noexcept {
-		if (pInstance) 
-		{
-			return pInstance->QueryInterface(IID_PPV_ARGS(&pInstance));
-		}
-		else 
-		{
-			return E_POINTER;
-		}
-	}
-
-	template <class T> void SafeRelease(T** ppT)
-	{
-		if (*ppT)
-		{
-			(*ppT)->Release();
-			*ppT = nullptr;
-		}
-	}
-}
-
 namespace HandyAudioControl {
 
 	UniqueCOMPtr<IPolicyConfig> GetIPolicyConfig() {
