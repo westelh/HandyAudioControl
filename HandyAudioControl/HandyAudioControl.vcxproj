@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\PolicyConfigClient;..\MMDeviceClient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +142,14 @@
   <ItemGroup>
     <Image Include="HandyAudioControl.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMDeviceClient\MMDeviceClient.vcxproj">
+      <Project>{3d950136-3d8b-491b-a15b-c85ef1e13d4d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\PolicyConfigClient\PolicyConfigClient.vcxproj">
+      <Project>{60bfde3f-e0c4-4221-916b-225bfa690ec8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
