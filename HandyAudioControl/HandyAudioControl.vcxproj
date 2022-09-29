@@ -130,7 +130,9 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="HandyAudioControl.h" />
+    <ClInclude Include="IPolicyConfig.h" />
     <ClInclude Include="MMDeviceClient.h" />
+    <ClInclude Include="PolicyConfigClient.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -138,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="HandyAudioControl.cpp" />
     <ClCompile Include="MMDeviceClient.cpp" />
+    <ClCompile Include="PolicyConfigClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HandyAudioControl.rc" />
