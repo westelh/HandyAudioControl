@@ -1,8 +1,13 @@
 ﻿// HandyAudioControl.cpp : アプリケーションのエントリ ポイントを定義します。
 //
 
+#include <string>
+#include <sstream>
 #include "framework.h"
 #include "HandyAudioControl.h"
+#include "MMDeviceClient.h"
+#include "PolicyConfigClient.h"
+#include "Utils.h"
 
 #define MAX_LOADSTRING 100
 
@@ -42,15 +47,44 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         
     MSG msg;
 
-    // メイン メッセージ ループ:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    auto hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    if (!SUCCEEDED(hr))
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        throw HandyAudioControl::GetLastErrorCode();
+    }
+
+    {
+        auto devices = HandyAudioControl::EnumerateAudioDevices(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+        const auto n = devices.size();
+        const auto nstring = std::to_wstring(n);
+        std::wstringstream ss{};
+        ss << L"Found " << nstring << L" devices\n";
+        OutputDebugString(ss.str().c_str());
+        ss.clear();
+
+        for (size_t i = 0; i < n; i++)
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            DWORD state;
+            const auto id = HandyAudioControl::GetDeviceId(devices.at(i));
+            auto prop = HandyAudioControl::GetDeviceProperty(devices.at(i));
+            const auto name = HandyAudioControl::GetDeviceFriendlyName(prop);
+            ss << id << L" " << name << L"\n";
+            OutputDebugString(ss.str().c_str());
+            ss.clear();
+        }
+
+        // メイン メッセージ ループ:
+        while (GetMessage(&msg, nullptr, 0, 0))
+        {
+            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
         }
     }
+
+    CoUninitialize();
     return (int) msg.wParam;
 }
 
@@ -104,6 +138,20 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
+
+   HWND hwndButton = CreateWindow(
+       L"BUTTON",  // Predefined class; Unicode assumed 
+       L"OK",      // Button text 
+       WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // Styles 
+       10,         // x position 
+       10,         // y position 
+       100,        // Button width
+       100,        // Button height
+       hWnd,     // Parent window
+       NULL,       // No menu.
+       (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+       NULL);      // Pointer not needed.
+
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -120,6 +168,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 中止メッセージを表示して戻る
 //
 //
+DWORD current = 0;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -130,6 +179,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 選択されたメニューの解析:
             switch (wmId)
             {
+            case BN_CLICKED:
+                {   
+                    auto devices = HandyAudioControl::EnumerateAudioDevices(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+                    if (devices.size() > 0)
+                    {
+                        auto&& next = devices.at(current++ % devices.size());
+                        const auto id = HandyAudioControl::GetDeviceId(next);
+                        auto prop = HandyAudioControl::GetDeviceProperty(next);
+                        const auto name = HandyAudioControl::GetDeviceFriendlyName(prop);
+                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
+                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
+                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
+                        std::wstringstream ss;
+                        ss << L"Switched default audio endpoint to " << name << L"\n";
+                        OutputDebugString(ss.str().c_str());
+
+                    }
+                }
+                break;
+
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;

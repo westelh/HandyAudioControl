@@ -10,6 +10,7 @@
 #include <windows.h>
 #include <Mmreg.h>
 #include <mmdeviceapi.h>
+#include <Functiondiscoverykeys_devpkey.h>
 // C ランタイム ヘッダー ファイル
 #include <stdlib.h>
 #include <malloc.h>

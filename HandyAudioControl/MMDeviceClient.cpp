@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "MMDeviceClient.h"
 
 namespace HandyAudioControl {
@@ -64,7 +65,7 @@ namespace HandyAudioControl {
         }
         else
         {
-            GetLastErrorCode();
+            throw GetLastErrorCode();
         }
     }
 
@@ -88,7 +89,7 @@ namespace HandyAudioControl {
             {
                 pDevice->Release();
             }
-            GetLastErrorCode();
+            throw GetLastErrorCode();
         }
     }
 
@@ -105,4 +106,43 @@ namespace HandyAudioControl {
         return ret;
     }
 
+    std::wstring GetDeviceId(UniqueCOMPtr<IMMDevice>& device) {
+        LPWSTR id;
+        CheckHResult(device->GetId(&id));
+        std::wstring ret{ id };
+        CoTaskMemFree(id);
+        return id;
+    }
+
+    UniqueCOMPtr<IPropertyStore> GetDeviceProperty(UniqueCOMPtr<IMMDevice>& device) {
+        IPropertyStore* prop;
+        CheckHResult(device->OpenPropertyStore(STGM_READ, &prop));
+        if (prop)
+        {
+            return UniqueCOMPtr<IPropertyStore>{std::move(prop)};
+        }
+        else {
+            if (prop)
+            {
+                prop->Release();
+            }
+            throw GetLastErrorCode();
+        }
+    }
+
+    std::wstring GetDeviceFriendlyName(UniqueCOMPtr<IPropertyStore>& prop) {
+        if (prop)
+        {
+            PROPVARIANT varName;
+            PropVariantInit(&varName);
+            CheckHResult(prop->GetValue(PKEY_Device_FriendlyName, &varName));
+            const auto name = std::wstring{ varName.pwszVal };
+            PropVariantClear(&varName);
+            return name;
+        }
+        else
+        {
+            throw std::invalid_argument{ "passed pointer is null" };
+        }
+    }
 }
