@@ -12,4 +12,20 @@ namespace HandyAudioControl {
     UniqueCOMPtr<IPropertyStore> GetDeviceProperty(UniqueCOMPtr<IMMDevice>& device);
 
     std::wstring GetDeviceFriendlyName(UniqueCOMPtr<IPropertyStore>& prop);
+
+	class MMDevice {
+	public:
+		explicit MMDevice(UniqueCOMPtr<IMMDevice>&& p);
+
+		~MMDevice() noexcept = default;
+
+		std::wstring GetId() const;
+
+		std::wstring GetFriendlyName() const;
+
+	private:
+		UniqueCOMPtr<IMMDevice> pDevice;
+
+		UniqueCOMPtr<IPropertyStore> pProperty;
+	};
 }

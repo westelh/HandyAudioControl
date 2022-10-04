@@ -77,3 +77,26 @@ namespace HandyAudioControl {
         }
     }
 }
+
+HandyAudioControl::MMDevice::MMDevice(UniqueCOMPtr<IMMDevice>&& p) : pDevice{ std::forward<UniqueCOMPtr<IMMDevice>>(p) }, pProperty{ } {
+    IPropertyStore* prop = nullptr;
+    CheckHResult(pDevice->OpenPropertyStore(STGM_READ, &prop));
+    pProperty.reset(std::move(prop));
+}
+
+std::wstring HandyAudioControl::MMDevice::GetId() const {
+    LPWSTR tempId;
+    CheckHResult(this->pDevice->GetId(&tempId));
+    std::wstring ret{ tempId };
+    CoTaskMemFree(tempId);
+    return ret;
+}
+
+std::wstring HandyAudioControl::MMDevice::GetFriendlyName() const {
+    PROPVARIANT varName;
+    PropVariantInit(&varName);
+    CheckHResult(pProperty->GetValue(PKEY_Device_FriendlyName, &varName));
+    const auto name = std::wstring{ varName.pwszVal };
+    PropVariantClear(&varName);
+    return name;
+}
