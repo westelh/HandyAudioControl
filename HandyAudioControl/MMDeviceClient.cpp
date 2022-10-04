@@ -10,87 +10,28 @@ namespace HandyAudioControl {
         const auto hr = CoCreateInstance(
             CLSID_MMDeviceEnumerator, NULL,
             CLSCTX_ALL, IID_PPV_ARGS(&pEnumerator));
-        if (SUCCEEDED(hr))
-        {
-            if (pEnumerator)
-            {
-                pEnumerator->QueryInterface(IID_PPV_ARGS(&pEnumerator));
-                return UniqueCOMPtr<IMMDeviceEnumerator>{std::move(pEnumerator)};
-            }
-            else
-            {
-                throw std::runtime_error{ "Even though api call has succeeded, object is null" };
-            }
-        }
-        else
-        {
-            if (pEnumerator)
-            {
-                pEnumerator->Release();
-            }
-            throw GetLastErrorCode();
-        }
+        
+        CheckHResult(hr);
+        pEnumerator->QueryInterface(IID_PPV_ARGS(&pEnumerator));
+        return UniqueCOMPtr<IMMDeviceEnumerator>{std::move(pEnumerator)};
     }
 
     UniqueCOMPtr<IMMDeviceCollection> GetIMMDeviceCollection(UniqueCOMPtr<IMMDeviceEnumerator>& enumerator, EDataFlow dataFlow, DWORD dwStateMask) {
         IMMDeviceCollection* pDeviceCollection = nullptr;
-        const auto hr = enumerator->EnumAudioEndpoints(dataFlow, dwStateMask, &pDeviceCollection);
-        if (SUCCEEDED(hr))
-        {
-            if (pDeviceCollection)
-            {
-                return UniqueCOMPtr<IMMDeviceCollection>{std::move(pDeviceCollection)};
-            }
-            else
-            {
-                throw std::runtime_error{ "Even though api call has succeeded, object is null" };
-            }
-        }
-        else
-        {
-            if (pDeviceCollection)
-            {
-                pDeviceCollection->Release();
-            }
-            throw GetLastErrorCode();
-        }
+        CheckHResult(enumerator->EnumAudioEndpoints(dataFlow, dwStateMask, &pDeviceCollection));
+        return  UniqueCOMPtr<IMMDeviceCollection>{ std::move(pDeviceCollection) };
     }
 
     UINT GetIMMDeviceCount(UniqueCOMPtr<IMMDeviceCollection>& collection) {
         UINT count = 0;
-        const auto hr = collection->GetCount(&count);
-        if (SUCCEEDED(hr))
-        {
-            return count;
-        }
-        else
-        {
-            throw GetLastErrorCode();
-        }
+        CheckHResult(collection->GetCount(&count));
+        return count;
     }
 
     UniqueCOMPtr<IMMDevice> GetIMMDevice(UniqueCOMPtr<IMMDeviceCollection>& collection, UINT i) {
-        IMMDevice* pDevice;
-        const auto hr = collection->Item(i, &pDevice);
-        if (SUCCEEDED(hr))
-        {
-            if (pDevice)
-            {
-                return UniqueCOMPtr<IMMDevice>{std::move(pDevice)};
-            }
-            else
-            {
-                throw std::runtime_error{ "Even though api call has succeeded, object is null" };
-            }
-        }
-        else
-        {
-            if (pDevice)
-            {
-                pDevice->Release();
-            }
-            throw GetLastErrorCode();
-        }
+        IMMDevice* pDevice = nullptr;
+        CheckHResult(collection->Item(i, &pDevice));
+        return UniqueCOMPtr<IMMDevice>{std::move(pDevice)};
     }
 
     std::vector<UniqueCOMPtr<IMMDevice>> EnumerateAudioDevices(EDataFlow dataFlow, DWORD dwStateMask) {
@@ -107,7 +48,7 @@ namespace HandyAudioControl {
     }
 
     std::wstring GetDeviceId(UniqueCOMPtr<IMMDevice>& device) {
-        LPWSTR id;
+        LPWSTR id = nullptr;
         CheckHResult(device->GetId(&id));
         std::wstring ret{ id };
         CoTaskMemFree(id);
@@ -115,19 +56,9 @@ namespace HandyAudioControl {
     }
 
     UniqueCOMPtr<IPropertyStore> GetDeviceProperty(UniqueCOMPtr<IMMDevice>& device) {
-        IPropertyStore* prop;
+        IPropertyStore* prop = nullptr;
         CheckHResult(device->OpenPropertyStore(STGM_READ, &prop));
-        if (prop)
-        {
-            return UniqueCOMPtr<IPropertyStore>{std::move(prop)};
-        }
-        else {
-            if (prop)
-            {
-                prop->Release();
-            }
-            throw GetLastErrorCode();
-        }
+        return UniqueCOMPtr<IPropertyStore>{std::move(prop)};
     }
 
     std::wstring GetDeviceFriendlyName(UniqueCOMPtr<IPropertyStore>& prop) {
