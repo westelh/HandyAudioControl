@@ -6,7 +6,7 @@
 #define POLICYCONFIGCLIENT_API __declspec(dllimport)
 #endif // POLICYCONFIGCLIENT_EXPORTS
 
-#include "mmdeviceapi.h"
+#include"framework.h"
 
 namespace HandyAudioControl {
 	bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role);

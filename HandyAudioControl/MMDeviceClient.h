@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "mmdeviceapi.h"
+#include "framework.h"
 #include "Utils.h"
 
 namespace HandyAudioControl {

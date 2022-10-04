@@ -1,6 +1,5 @@
 #pragma once
-#include <Mmreg.h>
-#include <Mmdeviceapi.h>
+#include "framework.h"
 
 namespace HandyAudioControl {
 
