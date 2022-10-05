@@ -11,6 +11,7 @@
 #include "Utils.h"
 
 namespace HandyAudioControl {
+
 	class PolicyConfigClient {
 	private:
 		UniqueCOMPtr<IPolicyConfig> instance;
@@ -23,5 +24,4 @@ namespace HandyAudioControl {
 		void SetDefaultAudioEndPoint(std::wstring deviceId, ERole role);
 	};
 
-	bool SetDefaultAudioEndPoint(PCWSTR deviceId, ERole role);
 }
