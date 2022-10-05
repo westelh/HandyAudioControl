@@ -54,7 +54,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
     {
-        auto devices = HandyAudioControl::EnumerateAudioDevices(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+        const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
         const auto n = devices.size();
         const auto nstring = std::to_wstring(n);
         std::wstringstream ss{};
@@ -65,9 +65,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         for (size_t i = 0; i < n; i++)
         {
             DWORD state;
-            const auto id = HandyAudioControl::GetDeviceId(devices.at(i));
-            auto prop = HandyAudioControl::GetDeviceProperty(devices.at(i));
-            const auto name = HandyAudioControl::GetDeviceFriendlyName(prop);
+            const auto id = devices.at(i).GetId();
+            const auto name = devices.at(i).GetFriendlyName();
             ss << id << L" " << name << L"\n";
             OutputDebugString(ss.str().c_str());
             ss.clear();
@@ -181,16 +180,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
             case BN_CLICKED:
                 {   
-                    auto devices = HandyAudioControl::EnumerateAudioDevices(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+                HandyAudioControl::PolicyConfigClient client{};
+                    const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
                     if (devices.size() > 0)
                     {
                         auto&& next = devices.at(current++ % devices.size());
-                        const auto id = HandyAudioControl::GetDeviceId(next);
-                        auto prop = HandyAudioControl::GetDeviceProperty(next);
-                        const auto name = HandyAudioControl::GetDeviceFriendlyName(prop);
-                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
-                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
-                        HandyAudioControl::SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
+                        const auto id = next.GetId();
+                        const auto name = next.GetFriendlyName();
+                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
+                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
+                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
                         std::wstringstream ss;
                         ss << L"Switched default audio endpoint to " << name << L"\n";
                         OutputDebugString(ss.str().c_str());
