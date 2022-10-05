@@ -78,10 +78,32 @@ namespace HandyAudioControl {
     }
 }
 
+std::vector<HandyAudioControl::MMDevice> HandyAudioControl::MMDevice::Enumerate(EDataFlow dataFlow, DWORD dwStateMask) {
+    auto enumerator = HandyAudioControl::GetIMMDeviceEnumerator();
+    auto collection = HandyAudioControl::GetIMMDeviceCollection(enumerator, dataFlow, dwStateMask);
+    const auto n = HandyAudioControl::GetIMMDeviceCount(collection);
+    
+    std::vector<HandyAudioControl::MMDevice> ret;
+    for (size_t i = 0; i < n; i++)
+    {
+        auto pDevice = HandyAudioControl::GetIMMDevice(collection, i);
+        MMDevice device{ std::move(pDevice) };
+        ret.push_back(std::move(device));
+    }
+    return ret;
+}
+
 HandyAudioControl::MMDevice::MMDevice(UniqueCOMPtr<IMMDevice>&& p) : pDevice{ std::forward<UniqueCOMPtr<IMMDevice>>(p) }, pProperty{ } {
     IPropertyStore* prop = nullptr;
     CheckHResult(pDevice->OpenPropertyStore(STGM_READ, &prop));
     pProperty.reset(std::move(prop));
+}
+
+HandyAudioControl::MMDevice::MMDevice(MMDevice&& rhs) noexcept: 
+    pDevice{ std::forward<UniqueCOMPtr<IMMDevice>>(rhs.pDevice)},
+    pProperty{ std::forward<UniqueCOMPtr<IPropertyStore>>(rhs.pProperty) }
+{
+
 }
 
 std::wstring HandyAudioControl::MMDevice::GetId() const {

@@ -15,7 +15,11 @@ namespace HandyAudioControl {
 
 	class MMDevice {
 	public:
+		static std::vector<MMDevice> Enumerate(EDataFlow dataFlow, DWORD dwStateMask);
+
 		explicit MMDevice(UniqueCOMPtr<IMMDevice>&& p);
+
+		MMDevice(MMDevice&& rhs) noexcept;
 
 		~MMDevice() noexcept = default;
 
