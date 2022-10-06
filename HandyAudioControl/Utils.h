@@ -9,23 +9,6 @@
 #include "debugapi.h"
 #endif // !_DEBUG
 
-inline std::wstring UnicodeInWideChars(std::string_view from) {
-	std::wstring ret(from.size(), 0);
-	size_t charCount;
-	mbstowcs_s(&charCount, ret.data(), ret.size(), from.data(), _TRUNCATE);
-	return ret;
-}
-
-inline void OutputDebugString(const std::exception& e) noexcept {
-#ifdef UNICODE
-#endif // UNICODE
-
-	
-	return;
-}
-
-
-
 namespace HandyAudioControl {
 
 	template<class T>
@@ -51,5 +34,37 @@ namespace HandyAudioControl {
 		{
 			throw GetLastErrorCode();
 		}
+	}
+
+	// intended to be used with classic string
+	inline std::wstring WideCharFromLegacyByteArray(const std::string_view from) {
+		// required size for wide char buffer
+		const auto size = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), from.size(), nullptr, 0);
+		std::wstring buffer(size, 0);
+		// convert byte array string using system ansi code page
+		const auto ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), from.size(), buffer.data(), buffer.size());
+		if (!ret)
+		{
+			throw GetLastErrorCode();
+		}
+		return buffer;
+	}
+
+	// utf8 array to wide chars
+	inline std::wstring WideCharFromU8(const std::u8string_view from) {
+		// required size for wide char buffer
+		const auto size = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), from.size(), nullptr, 0);
+		std::wstring buffer(size, 0);
+		// convert byte array string using utf8 code page
+		const auto ret = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), from.size(), buffer.data(), buffer.size());
+		if (!ret)
+		{
+			throw GetLastErrorCode();
+		}
+		return buffer;
+	}
+
+	inline void OutputDebugByteString(const char* msg) {
+		OutputDebugString(WideCharFromLegacyByteArray(msg).c_str());
 	}
 }

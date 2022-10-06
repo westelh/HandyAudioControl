@@ -10,6 +10,7 @@
 #include "Utils.h"
 
 using namespace std::string_literals;
+using namespace HandyAudioControl;
 
 #define MAX_LOADSTRING 100
 
@@ -55,7 +56,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
     try {
-        throw std::exception{ u8"あああ" };
+        throw std::exception{ "あああ" };
         const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
         const auto n = devices.size();
         const auto nstring = std::to_wstring(n);
@@ -75,7 +76,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
     catch (std::exception e) {
-        OutputDebugString(e);
+        OutputDebugByteString(e.what());
         return 1;
     }
 
@@ -203,7 +204,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }
                 }
                 catch (const std::exception& e) {
-                    OutputDebugString(e);
+                    OutputDebugByteString(e.what());
                 }
                 break;
 
