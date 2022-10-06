@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HandyAudioControl", "HandyA
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IslandsDemo", "IslandsDemo\IslandsDemo.vcxproj", "{3A7C79AA-84F8-4E0B-B865-A5E18C19D1DC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UtilTest", "UtilTest\UtilTest.vcxproj", "{728C3674-661A-4118-AB6A-5D59BB56FB28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{3A7C79AA-84F8-4E0B-B865-A5E18C19D1DC}.Release|x64.Build.0 = Release|x64
 		{3A7C79AA-84F8-4E0B-B865-A5E18C19D1DC}.Release|x86.ActiveCfg = Release|Win32
 		{3A7C79AA-84F8-4E0B-B865-A5E18C19D1DC}.Release|x86.Build.0 = Release|Win32
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Debug|x64.ActiveCfg = Debug|x64
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Debug|x64.Build.0 = Debug|x64
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Debug|x86.ActiveCfg = Debug|Win32
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Debug|x86.Build.0 = Debug|Win32
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Release|x64.ActiveCfg = Release|x64
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Release|x64.Build.0 = Release|x64
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Release|x86.ActiveCfg = Release|Win32
+		{728C3674-661A-4118-AB6A-5D59BB56FB28}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

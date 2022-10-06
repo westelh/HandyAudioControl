@@ -75,10 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
     catch (std::exception e) {
-        LPWSTR wide = new wchar_t[50];
-        MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, e.what(), -1, wide, 50);
-        OutputDebugString(wide);
-        delete[] wide;
+        OutputDebugString(e);
         return 1;
     }
 
@@ -188,7 +185,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case BN_CLICKED:
-                {   
+                try {   
                 HandyAudioControl::PolicyConfigClient client{};
                     const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
                     if (devices.size() > 0)
@@ -204,6 +201,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         OutputDebugString(ss.str().c_str());
 
                     }
+                }
+                catch (const std::exception& e) {
+                    OutputDebugString(e);
                 }
                 break;
 

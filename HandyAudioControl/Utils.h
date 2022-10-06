@@ -1,21 +1,32 @@
 #pragma once
 
+#include <string>
 #include <memory>
 #include <system_error>
+#include <string_view>
 
 #ifdef _DEBUG
 #include "debugapi.h"
 #endif // !_DEBUG
 
+inline std::wstring UnicodeInWideChars(std::string_view from) {
+	std::wstring ret(from.size(), 0);
+	size_t charCount;
+	mbstowcs_s(&charCount, ret.data(), ret.size(), from.data(), _TRUNCATE);
+	return ret;
+}
+
+inline void OutputDebugString(const std::exception& e) noexcept {
+#ifdef UNICODE
+#endif // UNICODE
+
+	
+	return;
+}
+
+
 
 namespace HandyAudioControl {
-
-	#ifdef _DEBUG
-	inline void DebugString(LPCWSTR msg) noexcept {
-		OutputDebugString(msg);
-	}
-	#endif // !_DEBUG
-
 
 	template<class T>
 	struct COMReleaser{
