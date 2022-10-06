@@ -56,7 +56,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
     try {
-        throw std::exception{ "あああ" };
         const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
         const auto n = devices.size();
         const auto nstring = std::to_wstring(n);
