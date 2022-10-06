@@ -9,6 +9,8 @@
 #include "PolicyConfigClient.h"
 #include "Utils.h"
 
+using namespace std::string_literals;
+
 #define MAX_LOADSTRING 100
 
 // グローバル変数:
@@ -30,8 +32,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: ここにコードを挿入してください。
-
     // グローバル文字列を初期化する
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_HANDYAUDIOCONTROL, szWindowClass, MAX_LOADSTRING);
@@ -50,10 +50,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     auto hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     if (!SUCCEEDED(hr))
     {
-        throw HandyAudioControl::GetLastErrorCode();
+        OutputDebugString(L"COM Initialization has failed");
+        return 1;
     }
 
-    {
+    try {
+        throw std::exception{ u8"あああ" };
         const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
         const auto n = devices.size();
         const auto nstring = std::to_wstring(n);
@@ -71,17 +73,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             OutputDebugString(ss.str().c_str());
             ss.clear();
         }
-
-        // メイン メッセージ ループ:
-        while (GetMessage(&msg, nullptr, 0, 0))
-        {
-            if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
-        }
     }
+    catch (std::exception e) {
+        LPWSTR wide = new wchar_t[50];
+        MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, e.what(), -1, wide, 50);
+        OutputDebugString(wide);
+        delete[] wide;
+        return 1;
+    }
+
+	// メイン メッセージ ループ:
+	while (GetMessage(&msg, nullptr, 0, 0))
+	{
+		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 
     CoUninitialize();
     return (int) msg.wParam;
@@ -198,17 +207,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 }
                 break;
 
+            // (メニュー項目) [ヘルプ] の [バージョン情報] で使用
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
+
+            // (メニュー項目) [ファイル] の [終了] で使用
             case IDM_EXIT:
-                DestroyWindow(hWnd);
+                SendMessage(hWnd, WM_CLOSE, 0, 0);
                 break;
+
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
         }
         break;
+
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -217,9 +231,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             EndPaint(hWnd, &ps);
         }
         break;
+
+    // ウィンドウまたはアプリケーションを終了する必要があることを示すシグナル
+    case WM_CLOSE:
+        DestroyWindow(hWnd);
+        break;
+
+    // ウィンドウが破棄されるときに送信
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
