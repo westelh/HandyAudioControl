@@ -8,5 +8,6 @@
 #define PCH_H
 
 // プリコンパイルするヘッダーをここに追加します
+#include <SDKDDKVer.h>
 
 #endif //PCH_H

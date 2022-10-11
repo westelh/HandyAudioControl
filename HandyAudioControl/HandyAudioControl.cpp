@@ -66,7 +66,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         for (size_t i = 0; i < n; i++)
         {
-            DWORD state;
+            DWORD state = 0;
             const auto id = devices.at(i).GetId();
             const auto name = devices.at(i).GetFriendlyName();
             ss << id << L" " << name << L"\n";
@@ -102,7 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
+    WNDCLASSEXW wcex{};
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
