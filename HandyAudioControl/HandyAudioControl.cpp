@@ -45,7 +45,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     _hInstance = hInstance;
 
     // The main window class name.
-    const wchar_t szWindowClass[] = L"Win32DesktopApp";
+    const wchar_t szWindowClass[] = L"HandyAudioControl";
     WNDCLASSEX windowClass = { };
 
     windowClass.cbSize = sizeof(WNDCLASSEX);
@@ -64,7 +64,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     _hWnd = CreateWindow(
         szWindowClass,
-        L"Windows c++ Win32 Desktop App",
+        L"Handy Audio Control",
         WS_OVERLAPPEDWINDOW | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
         NULL,
