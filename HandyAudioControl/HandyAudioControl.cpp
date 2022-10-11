@@ -116,9 +116,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam)
 {
-    PAINTSTRUCT ps;
-    HDC hdc;
-    wchar_t greeting[] = L"Hello World in Win32!";
     RECT rcClient;
 
     switch (messageCode)
@@ -126,9 +123,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
     case WM_PAINT:
         if (hWnd == _hWnd)
         {
-            hdc = BeginPaint(hWnd, &ps);
-            TextOut(hdc, 300, 5, greeting, wcslen(greeting));
-            EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
