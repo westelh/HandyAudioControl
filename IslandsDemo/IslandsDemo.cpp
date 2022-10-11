@@ -78,37 +78,20 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         return 0;
     }
 
-
-    // Begin XAML Island section.
-
-    // The call to winrt::init_apartment initializes COM; by default, in a multithreaded apartment.
-    winrt::init_apartment(apartment_type::single_threaded);
-
-    // Initialize the XAML framework's core window for the current thread.
-    WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();
-
-    // This DesktopWindowXamlSource is the object that enables a non-UWP desktop application 
-    // to host WinRT XAML controls in any UI element that is associated with a window handle (HWND).
-    DesktopWindowXamlSource desktopSource;
-
-    // Get handle to the core window.
-    auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();
-
-    // Parent the DesktopWindowXamlSource object to the current window.
-    check_hresult(interop->AttachToWindow(_hWnd));
-
-    // This HWND will be the window handler for the XAML Island: A child window that contains XAML.  
-    HWND hWndXamlIsland = nullptr;
-
-    // Get the new child window's HWND. 
-    interop->get_WindowHandle(&hWndXamlIsland);
-
-    // Update the XAML Island window size because initially it is 0,0.
-    SetWindowPos(hWndXamlIsland, 0, 200, 100, 800, 200, SWP_SHOWWINDOW);
-
+    // XAML コントロールのホスティング
+    using namespace winrt;
+    using namespace Windows::UI::Xaml::Hosting;
+    winrt::init_apartment(apartment_type::single_threaded);  // WinRTをSTAで初期化
+    WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();    // XAMLフレームワークの初期化
+    DesktopWindowXamlSource desktopSource;   // XAML コントロールのホスティング(XAML Islands)のメインクラス
+    auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();   // ルートの取得
+    check_hresult(interop->AttachToWindow(_hWnd));    // ウィンドウにアタッチ
+    HWND hWndXamlIsland = nullptr;   // ルートのハンドル
+    interop->get_WindowHandle(&hWndXamlIsland);  // ハンドルの取得
+    SetWindowPos(hWndXamlIsland, 0, 0, 0, 640, 480, SWP_SHOWWINDOW);
     // Create the XAML content.
     Windows::UI::Xaml::Controls::StackPanel xamlContainer;
-    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Azure()});
+    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::LightGray() });
 
     Windows::UI::Xaml::Controls::TextBlock tb;
     tb.Text(L"Hello World from Xaml Islands!");
@@ -119,6 +102,49 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     xamlContainer.Children().Append(tb);
     xamlContainer.UpdateLayout();
     desktopSource.Content(xamlContainer);
+
+
+    // Begin XAML Island section.
+
+    //// The call to winrt::init_apartment initializes COM; by default, in a multithreaded apartment.
+    //winrt::init_apartment(apartment_type::single_threaded);
+
+    //// Initialize the XAML framework's core window for the current thread.
+    //WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();
+
+    //// This DesktopWindowXamlSource is the object that enables a non-UWP desktop application 
+    //// to host WinRT XAML controls in any UI element that is associated with a window handle (HWND).
+    //DesktopWindowXamlSource desktopSource;
+
+    //// Get handle to the core window.
+    //auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();
+
+    //// Parent the DesktopWindowXamlSource object to the current window.
+    //check_hresult(interop->AttachToWindow(_hWnd));
+
+    //// This HWND will be the window handler for the XAML Island: A child window that contains XAML.  
+    //HWND hWndXamlIsland = nullptr;
+
+    //// Get the new child window's HWND. 
+    //interop->get_WindowHandle(&hWndXamlIsland);
+
+    //// Update the XAML Island window size because initially it is 0,0.
+    //SetWindowPos(hWndXamlIsland, 0, 200, 100, 800, 200, SWP_SHOWWINDOW);
+
+    //// Create the XAML content.
+    //Windows::UI::Xaml::Controls::StackPanel xamlContainer;
+    //xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Azure()});
+
+    //Windows::UI::Xaml::Controls::TextBlock tb;
+    //tb.Text(L"Hello World from Xaml Islands!");
+    //tb.Foreground(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Black() });
+    //tb.VerticalAlignment(Windows::UI::Xaml::VerticalAlignment::Center);
+    //tb.HorizontalAlignment(Windows::UI::Xaml::HorizontalAlignment::Center);
+    //tb.FontSize(48);
+
+    //xamlContainer.Children().Append(tb);
+    //xamlContainer.UpdateLayout();
+    //desktopSource.Content(xamlContainer);
 
     // End XAML Island section.
 
