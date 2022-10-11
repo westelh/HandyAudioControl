@@ -176,6 +176,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
         PostQuitMessage(0);
         break;
 
+	// ウィンドウまたはアプリケーションを終了する必要があることを示すシグナル
+	case WM_CLOSE:
+		DestroyWindow(hWnd);
+		break;
+
         // Create main window
     case WM_CREATE:
         _childhWnd = CreateWindowEx(0, L"ChildWClass", NULL, WS_CHILD | WS_BORDER, 0, 0, 0, 0, hWnd, NULL, _hInstance, NULL);
@@ -226,11 +231,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
 //            // TODO: HDC を使用する描画コードをここに追加してください...
 //            EndPaint(hWnd, &ps);
 //        }
-//        break;
-//
-//    // ウィンドウまたはアプリケーションを終了する必要があることを示すシグナル
-//    case WM_CLOSE:
-//        DestroyWindow(hWnd);
 //        break;
 //
 //    // ウィンドウが破棄されるときに送信
