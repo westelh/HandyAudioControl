@@ -156,66 +156,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
     return 0;
 }
 
-//// グローバル変数:
-//HINSTANCE hInst;                                // 現在のインターフェイス
-//WCHAR szTitle[MAX_LOADSTRING];                  // タイトル バーのテキスト
-//WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
-//
-//// このコード モジュールに含まれる関数の宣言を転送します:
-//ATOM                MyRegisterClass(HINSTANCE hInstance);
-//BOOL                InitInstance(HINSTANCE, int);
-//LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-//INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-//
-//int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-//    _In_opt_ HINSTANCE hPrevInstance,
-//    _In_ LPWSTR    lpCmdLine,
-//    _In_ int       nCmdShow)
-//{
-//    UNREFERENCED_PARAMETER(hPrevInstance);
-//    UNREFERENCED_PARAMETER(lpCmdLine);
-//
-//    // グローバル文字列を初期化する
-//    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-//    LoadStringW(hInstance, IDC_HANDYAUDIOCONTROL, szWindowClass, MAX_LOADSTRING);
-//    MyRegisterClass(hInstance);
-//
-//    auto hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-//    if (!SUCCEEDED(hr))
-//    {
-//        OutputDebugString(L"COM Initialization has failed");
-//        return 1;
-//    }
-//
-//    // アプリケーション初期化の実行:
-//    if (!InitInstance(hInstance, nCmdShow))
-//    {
-//        return FALSE;
-//    }
-//
-//    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_HANDYAUDIOCONTROL));
-//        
-//    MSG msg;
-//
-//
-//
-//	// メイン メッセージ ループ:
-//	while (GetMessage(&msg, nullptr, 0, 0))
-//	{
-//		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-//		{
-//			TranslateMessage(&msg);
-//			DispatchMessage(&msg);
-//		}
-//	}
-//
-//    CoUninitialize();
-//    return (int) msg.wParam;
-//}
-//
-//
-//
-////
 ////  関数: MyRegisterClass()
 ////
 ////  目的: ウィンドウ クラスを登録します。
