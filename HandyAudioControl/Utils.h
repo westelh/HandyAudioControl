@@ -4,6 +4,8 @@
 #include <memory>
 #include <system_error>
 #include <string_view>
+#include "pch.h"
+#include "windef.h"
 
 #ifdef _DEBUG
 #include "debugapi.h"

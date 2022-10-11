@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "PolicyConfigClient.h"
 #include "IPolicyConfig.h"
 #include "Utils.h"
