@@ -120,6 +120,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +136,7 @@
     <ClInclude Include="HandyAudioControl.h" />
     <ClInclude Include="IPolicyConfig.h" />
     <ClInclude Include="MMDeviceClient.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="PolicyConfigClient.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -141,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="HandyAudioControl.cpp" />
     <ClCompile Include="MMDeviceClient.cpp" />
+    <ClCompile Include="pch.cpp" />
     <ClCompile Include="PolicyConfigClient.cpp" />
   </ItemGroup>
   <ItemGroup>

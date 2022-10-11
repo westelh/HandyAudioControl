@@ -1,4 +1,4 @@
-#include <stdexcept>
+#include "pch.h"
 #include "MMDeviceClient.h"
 
 namespace HandyAudioControl {
