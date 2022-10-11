@@ -114,6 +114,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 }
 
 
+unsigned int current = 0;
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam)
 {
     RECT rcClient;
@@ -125,6 +126,52 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
         {
         }
         break;
+
+    case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		// 選択されたメニューの解析:
+		switch (wmId)
+		{
+		case BN_CLICKED:
+			try {
+				HandyAudioControl::PolicyConfigClient client{};
+				const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+				if (devices.size() > 0)
+				{
+					auto&& next = devices.at(current++ % devices.size());
+					const auto id = next.GetId();
+					const auto name = next.GetFriendlyName();
+					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
+					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
+					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
+					std::wstringstream ss;
+					ss << L"Switched default audio endpoint to " << name << L"\n";
+					OutputDebugString(ss.str().c_str());
+
+				}
+			}
+			catch (const std::exception& e) {
+				OutputDebugByteString(e.what());
+			}
+			break;
+
+			// (メニュー項目) [ヘルプ] の [バージョン情報] で使用
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+
+			// (メニュー項目) [ファイル] の [終了] で使用
+		case IDM_EXIT:
+			SendMessage(hWnd, WM_CLOSE, 0, 0);
+			break;
+
+		default:
+			return DefWindowProc(hWnd, messageCode, wParam, lParam);
+		}
+	}
+                break;
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -253,51 +300,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
 //    RECT rcClient;
 //    switch (message)
 //    {
-//    case WM_COMMAND:
-//        {
-//            int wmId = LOWORD(wParam);
-//            // 選択されたメニューの解析:
-//            switch (wmId)
-//            {
-//            case BN_CLICKED:
-//                try {   
-//                HandyAudioControl::PolicyConfigClient client{};
-//                    const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
-//                    if (devices.size() > 0)
-//                    {
-//                        auto&& next = devices.at(current++ % devices.size());
-//                        const auto id = next.GetId();
-//                        const auto name = next.GetFriendlyName();
-//                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
-//                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
-//                        client.SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
-//                        std::wstringstream ss;
-//                        ss << L"Switched default audio endpoint to " << name << L"\n";
-//                        OutputDebugString(ss.str().c_str());
-//
-//                    }
-//                }
-//                catch (const std::exception& e) {
-//                    OutputDebugByteString(e.what());
-//                }
-//                break;
-//
-//            // (メニュー項目) [ヘルプ] の [バージョン情報] で使用
-//            case IDM_ABOUT:
-//                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-//                break;
-//
-//            // (メニュー項目) [ファイル] の [終了] で使用
-//            case IDM_EXIT:
-//                SendMessage(hWnd, WM_CLOSE, 0, 0);
-//                break;
-//
-//            default:
-//                return DefWindowProc(hWnd, message, wParam, lParam);
-//            }
-//        }
-//        break;
-//
 //    case WM_PAINT:
 //        {
 //            PAINTSTRUCT ps;
