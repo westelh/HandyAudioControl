@@ -208,61 +208,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
     return 0;
 }
 
-////  関数: WndProc(HWND, UINT, WPARAM, LPARAM)
-////
-////  目的: メイン ウィンドウのメッセージを処理します。
-////
-////  WM_COMMAND  - アプリケーション メニューの処理
-////  WM_PAINT    - メイン ウィンドウを描画する
-////  WM_DESTROY  - 中止メッセージを表示して戻る
-////
-////
-//HWND _childhWnd;
-//DWORD current = 0;
-//LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    RECT rcClient;
-//    switch (message)
-//    {
-//    case WM_PAINT:
-//        {
-//            PAINTSTRUCT ps;
-//            HDC hdc = BeginPaint(hWnd, &ps);
-//            // TODO: HDC を使用する描画コードをここに追加してください...
-//            EndPaint(hWnd, &ps);
-//        }
-//        break;
-//
-//    // ウィンドウが破棄されるときに送信
-//    case WM_DESTROY:
-//        PostQuitMessage(0);
-//        break;
-//
-//        // Create main window
-//    case WM_CREATE:
-//        _childhWnd = CreateWindowEx(0, L"ChildWClass", NULL, WS_CHILD | WS_BORDER, 0, 0, 0, 0, hWnd, NULL, hInst, NULL);
-//        return 0;
-//
-//        // Main window changed size
-//    case WM_SIZE:
-//        // Get the dimensions of the main window's client
-//        // area, and enumerate the child windows. Pass the
-//        // dimensions to the child windows during enumeration.
-//        GetClientRect(hWnd, &rcClient);
-//        MoveWindow(_childhWnd, 200, 200, 400, 500, TRUE);
-//        ShowWindow(_childhWnd, SW_SHOW);
-//
-//        return 0;
-//
-//        // Process other messages.
-//
-//
-//    default:
-//        return DefWindowProc(hWnd, message, wParam, lParam);
-//    }
-//    return 0;
-//}
-
 // バージョン情報ボックスのメッセージ ハンドラーです。
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
