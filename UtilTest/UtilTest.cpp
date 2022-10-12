@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "CppUnitTest.h"
 #include "Utils.h"
 
@@ -55,7 +54,7 @@ namespace UtilTest
 			const auto source = u8"Some unicode string";
 			Logger::WriteMessage("Converting unicode in single bytes\n");
 			Logger::WriteMessage("Before: ");
-			//Logger::WriteMessage(source);
+			Logger::WriteMessage("CANNOT PRINT UNICODE WITH WriteMessage()");
 			Logger::WriteMessage("\n");
 
 			Logger::WriteMessage("After: ");
@@ -73,7 +72,7 @@ namespace UtilTest
 			const auto source = u8"ユニコードだよ";
 			Logger::WriteMessage("Converting unicode in single bytes\n");
 			Logger::WriteMessage("Before: ");
-			// Logger::WriteMessage(source);
+			Logger::WriteMessage("CANNOT PRINT UNICODE WITH WriteMessage()");
 			Logger::WriteMessage("\n");
 
 			Logger::WriteMessage("After: ");
