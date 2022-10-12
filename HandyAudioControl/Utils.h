@@ -36,10 +36,10 @@ namespace HandyAudioControl {
 	// intended to be used with classic string
 	inline std::wstring WideCharFromLegacyByteArray(const std::string_view from) {
 		// required size for wide char buffer
-		const auto size = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), from.size(), nullptr, 0);
+		const auto size = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), static_cast<int>(from.size()), nullptr, 0);
 		std::wstring buffer(size, 0);
 		// convert byte array string using system ansi code page
-		const auto ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), from.size(), buffer.data(), buffer.size());
+		const auto ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, from.data(), static_cast<int>(from.size()), buffer.data(), static_cast<int>(buffer.size()));
 		if (!ret)
 		{
 			throw GetLastErrorCode();
@@ -50,10 +50,10 @@ namespace HandyAudioControl {
 	// utf8 array to wide chars
 	inline std::wstring WideCharFromU8(const std::u8string_view from) {
 		// required size for wide char buffer
-		const auto size = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), from.size(), nullptr, 0);
+		const auto size = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), static_cast<int>(from.size()), nullptr, 0);
 		std::wstring buffer(size, 0);
 		// convert byte array string using utf8 code page
-		const auto ret = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), from.size(), buffer.data(), buffer.size());
+		const auto ret = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, reinterpret_cast<const char*>(from.data()), static_cast<int>(from.size()), buffer.data(), static_cast<int>(buffer.size()));
 		if (!ret)
 		{
 			throw GetLastErrorCode();

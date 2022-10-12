@@ -7,17 +7,16 @@
 #include "PolicyConfigClient.h"
 #include "Utils.h"
 
-using namespace std::string_literals;
-using namespace HandyAudioControl;
-
 #define MAX_LOADSTRING 100
 
+using namespace std::string_literals;
+using namespace HandyAudioControl;
 using namespace winrt;
 using namespace Windows::UI;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Hosting;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Composition;
-using namespace Windows::UI::Xaml::Hosting;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Numerics;
 
@@ -46,8 +45,8 @@ public:
     CustomAsyncAction() = default;
 };
 
-unsigned int current = 0;
-IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e) {
+void ToggleAudioEndPoint() noexcept {
+    static unsigned int current = 0;
     try {
         HandyAudioControl::PolicyConfigClient client{};
         const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
@@ -68,6 +67,10 @@ IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e)
     catch (const std::exception& e) {
         OutputDebugByteString(e.what());
     }
+}
+
+IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e) {
+    ToggleAudioEndPoint();
     return CustomAsyncAction{};
 }
 
@@ -84,7 +87,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     windowClass.hInstance = hInstance;
     windowClass.lpszClassName = szWindowClass;
     windowClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-
     windowClass.hIconSm = LoadIcon(windowClass.hInstance, IDI_APPLICATION);
 
     if (RegisterClassEx(&windowClass) == NULL)
@@ -104,10 +106,12 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         NULL
     );
     if (_hWnd == NULL)
+    {
+        OutputDebugByteString("Failed to create window");
+        return 1;
+    }
 
     // XAML コントロールのホスティング
-    using namespace winrt;
-    using namespace Windows::UI::Xaml::Hosting;
     winrt::init_apartment(apartment_type::single_threaded);  // WinRTをSTAで初期化
     WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();    // XAMLフレームワークの初期化
     DesktopWindowXamlSource desktopSource;   // XAML コントロールのホスティング(XAML Islands)のメインクラス
@@ -145,6 +149,27 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     return 0;
 }
 
+LRESULT CommandProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam) {
+	int wmId = LOWORD(wParam);
+	// 選択されたメニューの解析:
+	switch (wmId)
+	{
+		// (メニュー項目) [ヘルプ] の [バージョン情報] で使用
+	case IDM_ABOUT:
+		DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+		break;
+
+		// (メニュー項目) [ファイル] の [終了] で使用
+	case IDM_EXIT:
+		SendMessage(hWnd, WM_CLOSE, 0, 0);
+		break;
+
+	default:
+        break;
+	}
+    return DefWindowProc(hWnd, messageCode, wParam, lParam);
+}
+
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam)
 {
@@ -159,26 +184,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
 		break;
 
 	case WM_COMMAND:
-	{
-		int wmId = LOWORD(wParam);
-		// 選択されたメニューの解析:
-		switch (wmId)
-		{
-			// (メニュー項目) [ヘルプ] の [バージョン情報] で使用
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-
-			// (メニュー項目) [ファイル] の [終了] で使用
-		case IDM_EXIT:
-			SendMessage(hWnd, WM_CLOSE, 0, 0);
-			break;
-
-		default:
-			return DefWindowProc(hWnd, messageCode, wParam, lParam);
-		}
-	}
-	break;
+        return CommandProc(hWnd, messageCode, wParam, lParam);
+	    break;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);

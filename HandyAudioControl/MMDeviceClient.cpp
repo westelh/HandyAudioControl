@@ -39,7 +39,7 @@ namespace HandyAudioControl {
         auto enumerator = GetIMMDeviceEnumerator();
         auto collection = GetIMMDeviceCollection(enumerator, dataFlow, dwStateMask);
         auto n = GetIMMDeviceCount(collection);
-        for (size_t i = 0; i < n; i++)
+        for (UINT i = 0; i < n; i++)
         {
             auto pDevice = GetIMMDevice(collection, i);
             ret.push_back(std::move(pDevice));
@@ -84,7 +84,7 @@ std::vector<HandyAudioControl::MMDevice> HandyAudioControl::MMDevice::Enumerate(
     const auto n = HandyAudioControl::GetIMMDeviceCount(collection);
     
     std::vector<HandyAudioControl::MMDevice> ret;
-    for (size_t i = 0; i < n; i++)
+    for (UINT i = 0; i < n; i++)
     {
         auto pDevice = HandyAudioControl::GetIMMDevice(collection, i);
         MMDevice device{ std::move(pDevice) };
