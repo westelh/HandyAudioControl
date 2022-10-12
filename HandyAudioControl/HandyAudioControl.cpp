@@ -46,8 +46,28 @@ public:
     CustomAsyncAction() = default;
 };
 
+unsigned int current = 0;
 IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e) {
-    OutputDebugByteString("Clicked");
+    try {
+        HandyAudioControl::PolicyConfigClient client{};
+        const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
+        if (devices.size() > 0)
+        {
+            auto&& next = devices.at(current++ % devices.size());
+            const auto id = next.GetId();
+            const auto name = next.GetFriendlyName();
+            client.SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
+            client.SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
+            client.SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
+            std::wstringstream ss;
+            ss << L"Switched default audio endpoint to " << name << L"\n";
+            OutputDebugString(ss.str().c_str());
+
+        }
+    }
+    catch (const std::exception& e) {
+        OutputDebugByteString(e.what());
+    }
     return CustomAsyncAction{};
 }
 
@@ -126,48 +146,24 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 }
 
 
-unsigned int current = 0;
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam)
 {
     RECT rcClient;
 
-    switch (messageCode)
-    {
-    case WM_PAINT:
-        if (hWnd == _hWnd)
-        {
-        }
-        break;
+	switch (messageCode)
+	{
+	case WM_PAINT:
+		if (hWnd == _hWnd)
+		{
+		}
+		break;
 
-    case WM_COMMAND:
+	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
 		// 選択されたメニューの解析:
 		switch (wmId)
 		{
-		case BN_CLICKED:
-			try {
-				HandyAudioControl::PolicyConfigClient client{};
-				const auto devices = HandyAudioControl::MMDevice::Enumerate(EDataFlow::eRender, DEVICE_STATE_ACTIVE);
-				if (devices.size() > 0)
-				{
-					auto&& next = devices.at(current++ % devices.size());
-					const auto id = next.GetId();
-					const auto name = next.GetFriendlyName();
-					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eCommunications);
-					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eMultimedia);
-					client.SetDefaultAudioEndPoint(id.c_str(), ERole::eConsole);
-					std::wstringstream ss;
-					ss << L"Switched default audio endpoint to " << name << L"\n";
-					OutputDebugString(ss.str().c_str());
-
-				}
-			}
-			catch (const std::exception& e) {
-				OutputDebugByteString(e.what());
-			}
-			break;
-
 			// (メニュー項目) [ヘルプ] の [バージョン情報] で使用
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -182,40 +178,40 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM l
 			return DefWindowProc(hWnd, messageCode, wParam, lParam);
 		}
 	}
-                break;
+	break;
 
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
 
-	// ウィンドウまたはアプリケーションを終了する必要があることを示すシグナル
+		// ウィンドウまたはアプリケーションを終了する必要があることを示すシグナル
 	case WM_CLOSE:
 		DestroyWindow(hWnd);
 		break;
 
-        // Create main window
-    case WM_CREATE:
-        _childhWnd = CreateWindowEx(0, L"ChildWClass", NULL, WS_CHILD | WS_BORDER, 0, 0, 0, 0, hWnd, NULL, _hInstance, NULL);
-        return 0;
+		// Create main window
+	case WM_CREATE:
+		_childhWnd = CreateWindowEx(0, L"ChildWClass", NULL, WS_CHILD | WS_BORDER, 0, 0, 0, 0, hWnd, NULL, _hInstance, NULL);
+		return 0;
 
-        // Main window changed size
-    case WM_SIZE:
-        // Get the dimensions of the main window's client
-        // area, and enumerate the child windows. Pass the
-        // dimensions to the child windows during enumeration.
-        GetClientRect(hWnd, &rcClient);
-        MoveWindow(hWndXamlIsland, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, TRUE);
-        MoveWindow(_childhWnd, 200, 200, 400, 500, TRUE);
-        ShowWindow(_childhWnd, SW_SHOW);
+		// Main window changed size
+	case WM_SIZE:
+		// Get the dimensions of the main window's client
+		// area, and enumerate the child windows. Pass the
+		// dimensions to the child windows during enumeration.
+		GetClientRect(hWnd, &rcClient);
+		MoveWindow(hWndXamlIsland, 0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top, TRUE);
+		MoveWindow(_childhWnd, 200, 200, 400, 500, TRUE);
+		ShowWindow(_childhWnd, SW_SHOW);
 
-        return 0;
+		return 0;
 
-        // Process other messages.
+		// Process other messages.
 
-    default:
-        return DefWindowProc(hWnd, messageCode, wParam, lParam);
-        break;
-    }
+	default:
+		return DefWindowProc(hWnd, messageCode, wParam, lParam);
+		break;
+	}
 
     return 0;
 }
