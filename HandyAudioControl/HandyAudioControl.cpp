@@ -1,8 +1,6 @@
 ﻿// HandyAudioControl.cpp : アプリケーションのエントリ ポイントを定義します。
 //
 
-#include <string>
-#include <sstream>
 #include "pch.h"
 #include "HandyAudioControl.h"
 #include "MMDeviceClient.h"
