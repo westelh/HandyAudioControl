@@ -11,12 +11,16 @@
 #include <Mmreg.h>
 #include <mmdeviceapi.h>
 #include <Functiondiscoverykeys_devpkey.h>
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.system.h>
-#include <winrt/windows.ui.xaml.hosting.h>
+
+#include <unknwn.h> // To enable support for non-WinRT interfaces, unknwn.h must be included before any C++/WinRT headers.
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
-#include <winrt/windows.ui.xaml.controls.h>
-#include <winrt/Windows.ui.xaml.media.h>
+#include <winrt/Windows.UI.Xaml.h>
+#include <winrt/Windows.UI.Xaml.Controls.h>
+#include <winrt/windows.ui.xaml.hosting.h>
+#include <winrt/windows.ui.xaml.media.h>
+#include <winrt/windows.ui.xaml.controls.primitives.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
 // C ランタイム ヘッダー ファイル
 #include <stdlib.h>
 #include <malloc.h>

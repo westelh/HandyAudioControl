@@ -16,8 +16,11 @@ using namespace HandyAudioControl;
 
 using namespace winrt;
 using namespace Windows::UI;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Composition;
 using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::Foundation;
 using namespace Windows::Foundation::Numerics;
 
 #define MAX_LOADSTRING 100
@@ -39,6 +42,16 @@ HWND _hWnd;
 HWND _childhWnd;
 HWND hWndXamlIsland = nullptr;   // ルートのハンドル
 HINSTANCE _hInstance;
+
+class CustomAsyncAction : public IAsyncAction {
+public:
+    CustomAsyncAction() = default;
+};
+
+IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e) {
+    OutputDebugByteString("Clicked");
+    return CustomAsyncAction{};
+}
 
 int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -86,7 +99,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     SetWindowPos(hWndXamlIsland, 0, 0, 0, 640, 480, SWP_SHOWWINDOW);
     // Create the XAML content.
     Windows::UI::Xaml::Controls::StackPanel xamlContainer;
-    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::AntiqueWhite()});
+    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::White()});
 
     Windows::UI::Xaml::Controls::Button button;
     button.Content(box_value(L"Toggle!"));
@@ -94,6 +107,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     button.HorizontalAlignment(Windows::UI::Xaml::HorizontalAlignment::Center);
     button.FontSize(48);
     button.Foreground(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Black() } );
+    button.Click(&OnButtonClick);
 
     xamlContainer.Children().Append(button);
     xamlContainer.UpdateLayout();
