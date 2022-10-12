@@ -33,49 +33,6 @@ namespace HandyAudioControl {
         CheckHResult(collection->Item(i, &pDevice));
         return UniqueCOMPtr<IMMDevice>{std::move(pDevice)};
     }
-
-    std::vector<UniqueCOMPtr<IMMDevice>> EnumerateAudioDevices(EDataFlow dataFlow, DWORD dwStateMask) {
-        std::vector<UniqueCOMPtr<IMMDevice>> ret;
-        auto enumerator = GetIMMDeviceEnumerator();
-        auto collection = GetIMMDeviceCollection(enumerator, dataFlow, dwStateMask);
-        auto n = GetIMMDeviceCount(collection);
-        for (UINT i = 0; i < n; i++)
-        {
-            auto pDevice = GetIMMDevice(collection, i);
-            ret.push_back(std::move(pDevice));
-        }
-        return ret;
-    }
-
-    std::wstring GetDeviceId(UniqueCOMPtr<IMMDevice>& device) {
-        LPWSTR id = nullptr;
-        CheckHResult(device->GetId(&id));
-        std::wstring ret{ id };
-        CoTaskMemFree(id);
-        return id;
-    }
-
-    UniqueCOMPtr<IPropertyStore> GetDeviceProperty(UniqueCOMPtr<IMMDevice>& device) {
-        IPropertyStore* prop = nullptr;
-        CheckHResult(device->OpenPropertyStore(STGM_READ, &prop));
-        return UniqueCOMPtr<IPropertyStore>{std::move(prop)};
-    }
-
-    std::wstring GetDeviceFriendlyName(UniqueCOMPtr<IPropertyStore>& prop) {
-        if (prop)
-        {
-            PROPVARIANT varName;
-            PropVariantInit(&varName);
-            CheckHResult(prop->GetValue(PKEY_Device_FriendlyName, &varName));
-            const auto name = std::wstring{ varName.pwszVal };
-            PropVariantClear(&varName);
-            return name;
-        }
-        else
-        {
-            throw std::invalid_argument{ "passed pointer is null" };
-        }
-    }
 }
 
 std::vector<HandyAudioControl::MMDevice> HandyAudioControl::MMDevice::Enumerate(EDataFlow dataFlow, DWORD dwStateMask) {
