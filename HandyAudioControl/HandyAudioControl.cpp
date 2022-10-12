@@ -69,12 +69,31 @@ void ToggleAudioEndPoint() noexcept {
     }
 }
 
-IAsyncAction OnButtonClick(IInspectable const& sender, RoutedEventArgs const& e) {
+IAsyncAction OnButtonClick(Windows::Foundation::IInspectable const& sender, RoutedEventArgs const& e) {
     ToggleAudioEndPoint();
     return CustomAsyncAction{};
 }
 
-int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
+UIElement CreateXamlControl() {
+    // Create the XAML content.
+    Windows::UI::Xaml::Controls::StackPanel xamlContainer;
+    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Red() });
+
+    Windows::UI::Xaml::Controls::Button button;
+    button.Content(box_value(L"Toggle!"));
+    button.VerticalAlignment(Windows::UI::Xaml::VerticalAlignment::Center);
+    button.HorizontalAlignment(Windows::UI::Xaml::HorizontalAlignment::Center);
+    button.FontSize(48);
+    button.Foreground(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Black() });
+    button.Click(&OnButtonClick);
+
+    xamlContainer.Children().Append(button);
+    xamlContainer.UpdateLayout();
+
+    return xamlContainer;
+}
+
+int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) try
 {
     _hInstance = hInstance;
 
@@ -88,12 +107,8 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     windowClass.lpszClassName = szWindowClass;
     windowClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     windowClass.hIconSm = LoadIcon(windowClass.hInstance, IDI_APPLICATION);
-
-    if (RegisterClassEx(&windowClass) == NULL)
-    {
-        MessageBox(NULL, L"Windows registration failed!", L"Error", NULL);
-        return 0;
-    }
+    const auto registeredClassId = RegisterClassEx(&windowClass);
+    FAIL_FAST_LAST_ERROR_IF(registeredClassId == 0);
 
     _hWnd = CreateWindow(
         szWindowClass,
@@ -105,35 +120,18 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         hInstance,
         NULL
     );
-    if (_hWnd == NULL)
-    {
-        OutputDebugByteString("Failed to create window");
-        return 1;
-    }
+    FAIL_FAST_LAST_ERROR_IF_NULL(_hWnd);
+    wil::unique_hwnd hwnd{ _hWnd };
 
-    // XAML コントロールのホスティング
-    winrt::init_apartment(apartment_type::single_threaded);  // WinRTをSTAで初期化
-    WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();    // XAMLフレームワークの初期化
-    DesktopWindowXamlSource desktopSource;   // XAML コントロールのホスティング(XAML Islands)のメインクラス
-    auto interop = desktopSource.as<IDesktopWindowXamlSourceNative>();   // ルートの取得
-    check_hresult(interop->AttachToWindow(_hWnd));    // ウィンドウにアタッチ
-    interop->get_WindowHandle(&hWndXamlIsland);  // ハンドルの取得
-    SetWindowPos(hWndXamlIsland, 0, 0, 0, 640, 480, SWP_SHOWWINDOW);
-    // Create the XAML content.
-    Windows::UI::Xaml::Controls::StackPanel xamlContainer;
-    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::White()});
+	// XAML コントロールのホスティング
+	WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();    // XAMLフレームワークの初期化
+	DesktopWindowXamlSource desktopSource;   // XAML コントロールのホスティング(XAML Islands)のメインクラス
+	auto interop = desktopSource.as<IDesktopWindowXamlSourceNative2>();   // ルートの取得
+    THROW_IF_FAILED(interop->AttachToWindow(_hWnd));   // ウィンドウにアタッチ
+	interop->get_WindowHandle(&hWndXamlIsland);  // ハンドルの取得
 
-    Windows::UI::Xaml::Controls::Button button;
-    button.Content(box_value(L"Toggle!"));
-    button.VerticalAlignment(Windows::UI::Xaml::VerticalAlignment::Center);
-    button.HorizontalAlignment(Windows::UI::Xaml::HorizontalAlignment::Center);
-    button.FontSize(48);
-    button.Foreground(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Black() } );
-    button.Click(&OnButtonClick);
-
-    xamlContainer.Children().Append(button);
-    xamlContainer.UpdateLayout();
-    desktopSource.Content(xamlContainer);
+	desktopSource.Content(CreateXamlControl());
+	SetWindowPos(hWndXamlIsland, 0, 0, 0, 640, 480, SWP_SHOWWINDOW);
 
     ShowWindow(_hWnd, nCmdShow);
     UpdateWindow(_hWnd);
@@ -148,6 +146,7 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     return 0;
 }
+CATCH_RETURN();
 
 LRESULT CommandProc(HWND hWnd, UINT messageCode, WPARAM wParam, LPARAM lParam) {
 	int wmId = LOWORD(wParam);

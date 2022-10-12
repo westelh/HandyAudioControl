@@ -18,6 +18,7 @@
 #undef GetCurrentTime
 #undef TRY
 
+#include <wil/cppwinrt.h>
 // cpp winrt headers here
 #include <unknwn.h> // To enable support for non-WinRT interfaces, unknwn.h must be included before any C++/WinRT headers.
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
@@ -37,3 +38,5 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+
+#include <wil/result.h>
