@@ -12,6 +12,8 @@
 #include <mmdeviceapi.h>
 #include <Functiondiscoverykeys_devpkey.h>
 
+#include <windowsx.h>
+
 // Get rid of confliction for GetCurrentTime macro 
 #pragma push_macro("GetCurrentTime")
 #pragma push_macro("TRY")

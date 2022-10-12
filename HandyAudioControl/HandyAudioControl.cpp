@@ -6,6 +6,7 @@
 #include "MMDeviceClient.h"
 #include "PolicyConfigClient.h"
 #include "Utils.h"
+#include "Window.h"
 
 #define MAX_LOADSTRING 100
 
@@ -77,7 +78,7 @@ IAsyncAction OnButtonClick(Windows::Foundation::IInspectable const& sender, Rout
 UIElement CreateXamlControl() {
     // Create the XAML content.
     Windows::UI::Xaml::Controls::StackPanel xamlContainer;
-    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::Red() });
+    xamlContainer.Background(Windows::UI::Xaml::Media::SolidColorBrush{ Windows::UI::Colors::White() });
 
     Windows::UI::Xaml::Controls::Button button;
     button.Content(box_value(L"Toggle!"));
@@ -93,58 +94,146 @@ UIElement CreateXamlControl() {
     return xamlContainer;
 }
 
-int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) try
-{
-    _hInstance = hInstance;
-
-    // The main window class name.
-    const wchar_t szWindowClass[] = L"HandyAudioControl";
-    WNDCLASSEX windowClass = { };
-
-    windowClass.cbSize = sizeof(WNDCLASSEX);
-    windowClass.lpfnWndProc = WindowProc;
-    windowClass.hInstance = hInstance;
-    windowClass.lpszClassName = szWindowClass;
-    windowClass.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    windowClass.hIconSm = LoadIcon(windowClass.hInstance, IDI_APPLICATION);
-    const auto registeredClassId = RegisterClassEx(&windowClass);
-    FAIL_FAST_LAST_ERROR_IF(registeredClassId == 0);
-
-    _hWnd = CreateWindow(
-        szWindowClass,
-        L"Handy Audio Control",
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
-        NULL,
-        NULL,
-        hInstance,
-        NULL
-    );
-    FAIL_FAST_LAST_ERROR_IF_NULL(_hWnd);
-    wil::unique_hwnd hwnd{ _hWnd };
-
-	// XAML コントロールのホスティング
-	WindowsXamlManager winxamlmanager = WindowsXamlManager::InitializeForCurrentThread();    // XAMLフレームワークの初期化
-	DesktopWindowXamlSource desktopSource;   // XAML コントロールのホスティング(XAML Islands)のメインクラス
-	auto interop = desktopSource.as<IDesktopWindowXamlSourceNative2>();   // ルートの取得
-    THROW_IF_FAILED(interop->AttachToWindow(_hWnd));   // ウィンドウにアタッチ
-	interop->get_WindowHandle(&hWndXamlIsland);  // ハンドルの取得
-
-	desktopSource.Content(CreateXamlControl());
-	SetWindowPos(hWndXamlIsland, 0, 0, 0, 640, 480, SWP_SHOWWINDOW);
-
-    ShowWindow(_hWnd, nCmdShow);
-    UpdateWindow(_hWnd);
-
-    //Message loop:
-    MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0))
+class MainWindow : public DesktopWindowT<MainWindow> {
+public:
+    MainWindow(HINSTANCE hInstance, int nCmdShow) noexcept
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+        LoadStringW(hInstance, IDC_HANDYAUDIOCONTROL, szWindowClass, MAX_LOADSTRING);
+
+        WNDCLASSEXW wcex = {};
+        wcex.cbSize = sizeof(WNDCLASSEX);
+        wcex.style = CS_HREDRAW | CS_VREDRAW;
+        wcex.lpfnWndProc = WndProc;
+        wcex.cbClsExtra = DLGWINDOWEXTRA;
+        wcex.cbWndExtra = 0;
+        wcex.hInstance = hInstance;
+        wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_HANDYAUDIOCONTROL));
+        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+        wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_HANDYAUDIOCONTROL);
+        wcex.lpszClassName = szWindowClass;
+        wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+        WINRT_VERIFY(RegisterClassEx(&wcex));
+        WINRT_ASSERT(!GetHandle());
+
+        const auto wnd = InitInstance(hInstance, nCmdShow);
+        WINRT_ASSERT(wnd);
     }
 
-    return 0;
+    LRESULT MessageHandler(UINT const message, WPARAM const wParam, LPARAM const lParam) noexcept
+    {
+        HRESULT hr = S_OK;
+
+        switch (message)
+        {
+            HANDLE_MSG(GetHandle(), WM_CREATE, OnCreate);
+            HANDLE_MSG(GetHandle(), WM_COMMAND, OnCommand);
+            HANDLE_MSG(GetHandle(), WM_DESTROY, OnDestroy);
+            HANDLE_MSG(GetHandle(), WM_SIZE, OnResize);
+        default:
+            return base_type::MessageHandler(message, wParam, lParam);
+        }
+
+        return base_type::MessageHandler(message, wParam, lParam);
+    }
+
+private:
+    wil::unique_hwnd hWndXamlIsland = nullptr;
+    //winrt::MyApp::MainUserControl m_mainUserControl = nullptr;
+    //winrt::SampleLibraryCS::CustomUserControl m_managedControl = nullptr;
+    winrt::Windows::UI::Xaml::Controls::Button::Click_revoker m_xamlBt1ClickEventRevoker;
+
+    HWND InitInstance(HINSTANCE hInstance, int nCmdShow)
+    {
+        hInst = hInstance; // Store instance handle in our global variable
+        HWND hMainWnd = CreateWindow(
+            szWindowClass,
+            szTitle,
+            WS_OVERLAPPEDWINDOW,
+            CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
+            nullptr, nullptr, hInstance, this);
+        THROW_LAST_ERROR_IF(hMainWnd == 0);
+
+        ShowWindow(hMainWnd, nCmdShow);
+        UpdateWindow(hMainWnd);
+        SetFocus(hMainWnd);
+        return hMainWnd;
+    }
+
+    bool OnCreate(HWND, LPCREATESTRUCT)
+    {
+        //DEVICE_SCALE_FACTOR scaleFactor = {};
+        //winrt::check_hresult(GetScaleFactorForMonitor(MonitorFromWindow(GetHandle(), 0), &scaleFactor));
+        //const auto dpi = static_cast<int>(scaleFactor) / 100.0f;
+
+        //winrt::Contoso::Interop::IMainFormInterop interop{ nullptr };
+        //m_mainUserControl = winrt::MyApp::MainUserControl(interop);
+
+        auto manager = winrt::Windows::UI::Xaml::Hosting::WindowsXamlManager::InitializeForCurrentThread();
+        hWndXamlIsland = wil::unique_hwnd(CreateDesktopWindowsXamlSource(WS_TABSTOP, CreateXamlControl()));
+        return true;
+    }
+
+    void OnCommand(HWND, int id, HWND hwndCtl, UINT codeNotify)
+    {
+        switch (id)
+        {
+            //case IDM_ABOUT:
+            //    DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), GetHandle(), About);
+            //    break;
+            //case IDM_EXIT:
+            //    PostQuitMessage(0);
+            //    break;
+            //case IDM_ButtonID1:
+            //case IDM_ButtonID2:
+            //    if (m_mainUserControl)
+            //    {
+            //        const auto string = (id == IDM_ButtonID1) ? winrt::hstring(L"Native button 1") : winrt::hstring(L"Native button 2");
+            //        //m_mainUserControl.MyProperty(string);
+            //    }
+            //    break;
+        }
+    }
+
+	void OnDestroy(HWND hwnd)
+	{
+		if (m_xamlBt1ClickEventRevoker)
+		{
+			m_xamlBt1ClickEventRevoker.revoke();
+		}
+
+		base_type::OnDestroy(hwnd);
+	}
+
+	void OnResize(HWND, UINT state, int cx, int cy)
+	{
+		SetWindowPos(hWndXamlIsland.get(), 0, 0, 0, cx, cy, SWP_SHOWWINDOW);
+
+		//const auto newHeight = cy;
+		//const auto newWidth = cx;
+		//const auto islandHeight = newHeight - (ButtonHeight * 2) - ButtonMargin;
+		//const auto islandWidth = newWidth - (ButtonMargin * 2);
+		//SetWindowPos(m_hButton1.get(), 0, ButtonWidth * 2, ButtonMargin, ButtonWidth, ButtonHeight, SWP_SHOWWINDOW);
+		//SetWindowPos(m_hWndXamlButton1.get(), m_hButton1.get(), newWidth - (ButtonWidth * 2), ButtonMargin, ButtonWidth, ButtonHeight, SWP_SHOWWINDOW);
+		//SetWindowPos(m_hWndXamlIsland.get(), m_hWndXamlButton1.get(), 0, XamlIslandMargin, islandWidth, islandHeight, SWP_SHOWWINDOW);
+		//SetWindowPos(m_hButton2.get(), m_hWndXamlIsland.get(), (ButtonMargin + newWidth - ButtonWidth) / 2, newHeight - ButtonMargin - ButtonHeight, ButtonWidth, ButtonHeight, SWP_SHOWWINDOW);
+	}
+
+	void OnXamlButtonClick(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::UI::Xaml::RoutedEventArgs const&)
+	{
+		//m_mainUserControl.MyProperty(winrt::hstring(L"Xaml K Button 1"));
+	}
+
+};
+
+int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow) try
+{
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
+    MainWindow window{hInstance, nCmdShow};
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_HANDYAUDIOCONTROL));
+    int retValue = window.MessageLoop(hAccelTable);
+    return retValue;                                            
 }
 CATCH_RETURN();
 
